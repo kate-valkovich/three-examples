@@ -134,6 +134,26 @@ export class LionComponent implements AfterViewInit, OnDestroy {
     this.isBlowing = false;
   }
 
+  private handleTouchStart(event: TouchEvent) {
+    if (event.touches.length > 1) {
+      event.preventDefault();
+      this.mousePos = {x: event.touches[0].pageX, y: event.touches[0].pageY};
+      this.isBlowing = true;
+    }
+  }
+
+  private handleTouchEnd(event: TouchEvent) {
+    this.isBlowing = false;
+  }
+
+  private handleTouchMove(event: TouchEvent) {
+    if (event.touches.length == 1) {
+      event.preventDefault();
+      this.mousePos = {x: event.touches[0].pageX, y: event.touches[0].pageY};
+      this.isBlowing = true;
+    }
+  }
+
   private addMouseEventListener() {
     const mouseEventListener$ = fromEvent(document, 'mousemove') as Observable<MouseEvent>;
     mouseEventListener$
@@ -154,6 +174,27 @@ export class LionComponent implements AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroyStream$))
       .subscribe((event: MouseEvent) => {
         this.handleMouseDown(event);
+      });
+
+    const touchEndListener$ = fromEvent(document, 'touchend') as Observable<TouchEvent>;
+    touchEndListener$
+      .pipe(takeUntil(this.destroyStream$))
+      .subscribe((event: TouchEvent) => {
+        this.handleTouchEnd(event);
+      });
+
+    const touchStartListener$ = fromEvent(document, 'touchstart') as Observable<TouchEvent>;
+    touchStartListener$
+      .pipe(takeUntil(this.destroyStream$))
+      .subscribe((event: TouchEvent) => {
+        this.handleTouchStart(event);
+      });
+
+    const touchMoveListener$ = fromEvent(document, 'touchmove') as Observable<TouchEvent>;
+    touchMoveListener$
+      .pipe(takeUntil(this.destroyStream$))
+      .subscribe((event: TouchEvent) => {
+        this.handleTouchMove(event);
       });
   }
 }
